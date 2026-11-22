@@ -89,8 +89,35 @@ Node *insert(Node* root, int key)
     treeDepth = getHeight(root);
     return root;
 }
-Node* remove(Node* root, int key);
 
+Node* remove(Node* root, int key)
+{
+    if(root == nullptr) return nullptr;
+
+    if(key < root->key) root->left = remove(root->left, key);
+    else if(key > root->key) root->right = remove(root->right, key);
+    else{
+        if(root->left == nullptr || root->right == nullptr){
+             Node* child = root->left ? root->left : root->right;
+             
+             if(child == nullptr){
+                delete root;
+                return nullptr;
+             }else{
+                Node* old = root;
+                root = child;
+                delete old;
+             }
+        }else{
+            Node* kid = root->right;
+            while(kid->left != nullptr){kid = kid->left;}
+            root->key = kid->key;
+            root->right = remove(root->right, kid->key);
+            }
+        }
+    root = balance(root);
+    return root;
+}  
 Node* find(Node* root, int key) {
     treeDepth = getHeight(root);
     while (root != nullptr && root->key != key) {
@@ -103,3 +130,4 @@ void printStats() {
     std::cout << "Depth: " << treeDepth << '\n'
               << "Rotations: " << Node::rotations << '\n';
 }
+
