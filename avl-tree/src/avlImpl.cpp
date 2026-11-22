@@ -1,9 +1,12 @@
 #include "avl.h"
+#include <iostream>
 #include <cassert>
 #include <algorithm>
 
 //вспомогательные функции для реализации avl-дерева
 namespace {
+int treeDepth = 0;
+
 //высота узла
 int getHeight(Node* node) {
     return node == nullptr ? 0 : node->height;
@@ -74,19 +77,19 @@ Node *balance(Node *y) {
 Node *insert(Node* root, int key)
 {
     if (root == nullptr) {
-        Node *res = new Node{key, nullptr, nullptr, 1};
-        return res;
-    }
-    if (key < root->key) 
+        root = new Node{key, nullptr, nullptr, 1};
+    } else if (key < root->key) {
         root->left = insert(root->left, key);
-    else if (key > root->key)
+        root = balance(root);
+    } else if (key > root->key) {
         root->right = insert(root->right, key);
-    else
-        return root;
-    
-    root = balance(root);
+        root = balance(root);
+    }
+
+    treeDepth = getHeight(root);
     return root;
 }
+
 Node* remove(Node* root, int key)
 {
     if(root == nullptr) return nullptr;
@@ -115,5 +118,16 @@ Node* remove(Node* root, int key)
     root = balance(root);
     return root;
 }  
-Node* find(Node* root, int key);
-void printStats();
+Node* find(Node* root, int key) {
+    treeDepth = getHeight(root);
+    while (root != nullptr && root->key != key) {
+        root = key < root->key ? root->left : root->right;
+    }
+    return root;
+}
+
+void printStats() {
+    std::cout << "Depth: " << treeDepth << '\n'
+              << "Rotations: " << Node::rotations << '\n';
+}
+
